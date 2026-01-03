@@ -1,0 +1,26 @@
+#include "ScalarConverter.hpp"
+#include <cstdlib>
+#include <iostream>
+
+void ScalarConverter::convert(const std::string str){
+	double	num = std::atof(str.c_str());
+
+	std::cout << "char: ";
+	if (isprint(num) == 0){
+		std::cout << "Not displayable\n";
+	}
+}
+
+
+ScalarConverter::ScalarConverter(){
+}
+
+ScalarConverter::ScalarConverter(const ScalarConverter& other){
+}
+
+ScalarConverter::~ScalarConverter(){
+}
+
+ScalarConverter& ScalarConverter::operator=(const ScalarConverter& obj){
+	return (*this);
+}
