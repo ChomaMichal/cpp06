@@ -1,8 +1,4 @@
 #pragma once
 #include "Base.hpp"
 
-class B : public Base{
-	public:
-		char type;
-		B();
-};
+class B : public Base {};
