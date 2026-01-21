@@ -1,135 +1,122 @@
 #include "ScalarConverter.hpp"
-#include <cstdlib>
-#include <iostream>
-#include <cstdlib>
+#include <cctype>
 #include <cerrno>
 #include <climits>
+#include <cmath>
+#include <cstdlib>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
-static bool safe_atod(const char* str, double& out) {
-	errno = 0;
-	char* end;
+static bool parseDouble(const std::string &str, double &out) {
+  errno = 0;
+  char *end;
 
-	double val = std::strtod(str, &end);
+  double val = std::strtod(str.c_str(), &end);
 
-	if (errno == ERANGE)
-		return false;
+  if (errno == ERANGE)
+    return false;
 
-	if (*end != '\0'){
-		return false;
-	}
+  if (str == "-inf" || str == "-inff")
+    val = -1.0 / 0.0;
+  else if (str == "+inf" || str == "inf" || str == "+inff" || str == "inff")
+    val = 1.0 / 0.0;
+  else if (str == "nan" || str == "nanf")
+    val = 0.0 / 0.0;
+  else if (*end != '\0' && !(*end == 'f' || *end == 'F'))
+    return false;
 
-	out = val;
-	return true;
+  out = val;
+  return true;
 }
 
-static bool safe_atof(const char* str, float& out) {
-	errno = 0;
-	char* end;
+static void printChar(double val) {
+  std::cout << "char: ";
 
-	float val = std::strtof(str, &end);
+  if (val != val || val < CHAR_MIN || val > CHAR_MAX) {
+    std::cout << "impossible\n";
+    return;
+  }
 
-	if (errno == ERANGE)
-		return false;
+  int int_val = static_cast<int>(val);
+  if (int_val < CHAR_MIN || int_val > CHAR_MAX) {
+    std::cout << "impossible\n";
+    return;
+  }
 
-	if (*end != '\0')
-		return false;
-
-	out = val;
-	return true;
+  if (std::isprint(int_val) == 0) {
+    std::cout << "Non displayable\n";
+  } else {
+    std::cout << static_cast<char>(int_val) << "\n";
+  }
 }
 
-static bool safe_atoi(const char* str, int& out) {
-	errno = 0;
-	char* end;
+static void printInt(double val) {
+  std::cout << "int: ";
 
-	long val = std::strtol(str, &end, 10);
+  if (val != val || val > INT_MAX || val < INT_MIN) {
+    std::cout << "impossible\n";
+    return;
+  }
 
-	if (errno == ERANGE || val > INT_MAX || val < INT_MIN)
-		return false;
-
-	if (*end != '\0')
-		return false;
-
-	out = static_cast<int>(val);
-	return true;
+  std::cout << static_cast<int>(val) << "\n";
 }
 
-static void char_converter(const std::string str){
-		std::cout << "char: ";
-		int		num = - 1;
-		if (safe_atoi(str.c_str(), num) == false
-				|| num < CHAR_MIN || num > CHAR_MAX){
-			std::cout << "impossible\n";
-		}
-		else if (std::isprint(num) == 0){
-			std::cout << "Unprintable\n";
-		}
-		else{
-			std::cout << static_cast<char>(num) << "\n";
-		}
+static void printFloat(double val) {
+  std::cout << "float: ";
+
+  if (std::isnan(val)) {
+    std::cout << "nanf\n";
+  } else if (std::isinf(val) && val > 0) {
+    std::cout << "+inff\n";
+  } else if (std::isinf(val) && val < 0) {
+    std::cout << "-inff\n";
+  } else {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(1) << val;
+    std::cout << oss.str() << "f\n";
+  }
 }
 
-static void int_converter(const std::string str){
-		std::cout << "int: ";
-		int		num;
-		if (safe_atoi(str.c_str(), num) == false){
-			std::cout << "impossible\n";
-		}
-		else{
-			std::cout << static_cast<int>(num) << "\n";
-		}
+static void printDouble(double val) {
+  std::cout << "double: ";
+
+  if (val != val) {
+    std::cout << "nan\n";
+  } else if (val > 0 && val == (1.0 / 0.0)) {
+    std::cout << "+inf\n";
+  } else if (val < 0 && val == -(1.0 / 0.0)) {
+    std::cout << "-inf\n";
+  } else {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(1) << val;
+    std::cout << oss.str() << "\n";
+  }
 }
 
-static void float_converter(const std::string str){
-		std::cout << "float: ";
-		float	num;
-		if (str == "-inff"){
-			std::cout << "-inff\n";
-		}
-		else if (str == "+inff"){
-			std::cout << "+inff\n";
-		}
-		else if (str == "inff"){
-			std::cout << "inff\n";
-		}
-		else if (safe_atof(str.c_str(), num) == false){
-			std::cout << "impossible\n";
-		}
-		else{
-			std::cout << num << "f\n";
-		}
+void ScalarConverter::convert(const std::string str) {
+  double value;
+
+  if (!parseDouble(str, value)) {
+    std::cout << "char: impossible\n";
+    std::cout << "int: impossible\n";
+    std::cout << "float: impossible\n";
+    std::cout << "double: impossible\n";
+    return;
+  }
+
+  printChar(value);
+  printInt(value);
+  printFloat(value);
+  printDouble(value);
 }
 
-static void double_converter(const std::string str){
-		std::cout << "double: ";
-		double num;
-		if (safe_atod(str.c_str(), num) == false){
-			std::cout << "impossible" << std::endl;
-		}
-		else{
-			std::cout << num << std::endl;
-		}
-}
+ScalarConverter::ScalarConverter() {}
 
-void ScalarConverter::convert(const std::string str){
-	char_converter(str);
-	int_converter(str);
-	float_converter(str);
-	double_converter(str);
-}
+ScalarConverter::ScalarConverter(ScalarConverter &other) { *this = other; }
 
+ScalarConverter::~ScalarConverter() {}
 
-
-ScalarConverter::ScalarConverter(){
-}
-
-ScalarConverter::ScalarConverter(ScalarConverter& other){
-	*this = other;
-}
-
-ScalarConverter::~ScalarConverter(){
-}
-
-ScalarConverter& ScalarConverter::operator=(ScalarConverter& obj){
-	return (obj);
+ScalarConverter &ScalarConverter::operator=(ScalarConverter &obj) {
+  return (obj);
 }

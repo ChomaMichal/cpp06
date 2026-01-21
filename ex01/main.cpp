@@ -17,7 +17,7 @@ int main() {
 	uintptr_t raw = Serializer::serialize(&hehe);
 	Data *ptr = Serializer::deserialize(raw);
 
-
+	if (ptr == &hehe)
+		std::cout << "Pointers match!" << std::endl;
 	std::cout << *ptr;
-	delete ptr;
 }
