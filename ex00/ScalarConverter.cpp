@@ -113,10 +113,13 @@ void ScalarConverter::convert(const std::string str) {
 
 ScalarConverter::ScalarConverter() {}
 
-ScalarConverter::ScalarConverter(ScalarConverter &other) { *this = other; }
+ScalarConverter::ScalarConverter(const ScalarConverter &other) {
+  *this = other;
+}
 
 ScalarConverter::~ScalarConverter() {}
 
-ScalarConverter &ScalarConverter::operator=(ScalarConverter &obj) {
-  return (obj);
+ScalarConverter &ScalarConverter::operator=(const ScalarConverter &obj) {
+  *this = obj;
+  return (*this);
 }

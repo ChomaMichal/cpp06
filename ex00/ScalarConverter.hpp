@@ -3,11 +3,11 @@
 
 class ScalarConverter {
 public:
-	static void convert(const std::string str);
+  static void convert(const std::string str);
 
 private:
   ScalarConverter();
-  ScalarConverter(ScalarConverter& obj);
+  ScalarConverter(const ScalarConverter &obj);
   ~ScalarConverter();
-  ScalarConverter& operator=(ScalarConverter& obj);
+  ScalarConverter &operator=(const ScalarConverter &obj);
 };
